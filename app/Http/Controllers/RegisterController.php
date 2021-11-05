@@ -24,7 +24,8 @@ class RegisterController extends Controller
                 'email' => 'required|unique:users',
                 'password' => 'required'
             ]);
-
+            
+            //check for validation
             if ($validator->fails()) {
                 return response()->json(["message" => $validator->errors()], 400);
             }

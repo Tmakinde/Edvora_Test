@@ -3,21 +3,30 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Http\Requests\RegisterRequest;
 use Exception;
 use App\Models\User;
+use Illuminate\Support\Facades\Validator;
 
 class LoginController extends Controller
 {
     public function login(Request $request){
         try {
-            
-            $password = $request->password;
-            $email = $request->email;
+
+            $validator = Validator::make($request->all(),[
+                'password' => 'required',
+                'email' => 'required|exists:users'
+            ]);
+
+            //check fail validation
+            if ($validator->fails()) {
+                return response()->json([
+                    'message' => $validator->errors(),
+                ], 200);
+            }
 
             $credentials = request(['email', 'password']);
 
-
+            //check if credential match
             if (! $token = auth()->attempt($credentials)) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
