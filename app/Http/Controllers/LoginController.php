@@ -6,9 +6,16 @@ use Illuminate\Http\Request;
 use Exception;
 use App\Models\User;
 use Illuminate\Support\Facades\Validator;
+use App\Http\Services\AddSessionService;
 
 class LoginController extends Controller
 {
+    protected $addSession;
+
+    public function __construct(AddSessionService $addSessionService){
+        $this->addSession = $addSessionService;
+    }
+
     public function login(Request $request){
         try {
 
@@ -30,7 +37,12 @@ class LoginController extends Controller
             if (! $token = auth()->attempt($credentials)) {
                 return response()->json(['error' => 'Unauthorized'], 401);
             }
-    
+            //fetch user
+            $user = User::where('email', $request->email)->first();
+
+            //add user session
+            $this->addUserSession($user, $token);
+
             return $this->respondWithToken($token);
         } catch (Exception $ex) {
             return response()->json(['message' => $ex->getMessage()], 500);
@@ -54,4 +66,11 @@ class LoginController extends Controller
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
     }
+
+    protected function addUserSession($user, $token){
+        $this->addSession->saveSession($user, $token);
+        return;
+    }
+
+    
 }

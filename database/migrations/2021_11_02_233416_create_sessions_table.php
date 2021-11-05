@@ -17,7 +17,7 @@ class CreateSessionsTable extends Migration
             $table->id();
             $table->bigInteger('user_id')->unsigned();
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade')->onUpdate('cascade');
-            $table->string('token')->nullable();
+            $table->longText('token')->nullable();
             $table->string('device')->nullable();
             $table->timestamps();
         });
